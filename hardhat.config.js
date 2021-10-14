@@ -36,11 +36,13 @@ if (!process.env.PROVIDER_API_KEY) {
 function createNetworkConfig(network) {
   let net_prefix = 'eth';
   let gas_price = 80000000000;
+  let net_postfix = network;
   if (network.slice(0, 3) == "bsc") {
     net_prefix = "bsc";
+    net_postfix = network.slice(3);
     gas_price = 5000000000;
   }
-  const url = `https://speedy-nodes-nyc.moralis.io/${providerApiKey}/${net_prefix}/${network}`;
+  const url = `https://speedy-nodes-nyc.moralis.io/${providerApiKey}/${net_prefix}/${net_postfix}`;
   return {
     accounts: { mnemonic: mnemonic },
     chainId: chainIds[network],
