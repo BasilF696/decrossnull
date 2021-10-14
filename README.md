@@ -1,0 +1,2 @@
+# decrossnull
+Decentralized CrossNull game
