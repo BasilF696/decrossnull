@@ -4,3 +4,8 @@ node_modules
 #Hardhat files
 cache
 artifacts
+
+package-lock.json
+.env-dev
+
+unknown-31337.json
