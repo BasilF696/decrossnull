@@ -8,13 +8,12 @@ require('dotenv').config();
 require('./tasks');
 
 const chainIds = {
-  ganache: 1337,
-  goerli: 5,
   hardhat: 31337,
-  kovan: 42,
-  mainnet: 1,
-  rinkeby: 4,
-  ropsten: 3,
+  ethmainnet: 1,
+  ethropsten: 3,
+  ethrinkeby: 4,
+  ethgoerli: 5,
+  ethkovan: 42,
   bscmainnet: 56,
   bsctestnet: 97
 };
@@ -34,12 +33,10 @@ if (!process.env.PROVIDER_API_KEY) {
 }
 
 function createNetworkConfig(network) {
-  let net_prefix = 'eth';
+  let net_prefix = network.slice(0, 3);
+  let net_postfix = network.slice(3);;
   let gas_price = 80000000000;
-  let net_postfix = network;
-  if (network.slice(0, 3) == "bsc") {
-    net_prefix = "bsc";
-    net_postfix = network.slice(3);
+  if (net_prefix == "bsc") {
     gas_price = 5000000000;
   }
   const url = `https://speedy-nodes-nyc.moralis.io/${providerApiKey}/${net_prefix}/${net_postfix}`;
@@ -53,16 +50,15 @@ function createNetworkConfig(network) {
 }
 
 module.exports = {
-  defaultNetwork: "hardhat",
+  defaultNetwork: "dev",
   networks: {
     dev: {
       url: "http://127.0.0.1:8545/"
     },
     bscmainnet: createNetworkConfig('bscmainnet'),
     bsctestnet: createNetworkConfig('bsctestnet'),
-    mainnet: createNetworkConfig('mainnet'),
-    rinkeby: createNetworkConfig('rinkeby'),
-    ropsten: createNetworkConfig('ropsten')
+    ethmainnet: createNetworkConfig('ethmainnet'),
+    ethrinkeby: createNetworkConfig('ethrinkeby'),
   },
   paths: {
     artifacts: './artifacts',
