@@ -9,10 +9,10 @@ contract Game {
     using Address for address payable;
     using SafeERC20 for IERC20;
 
-    address payable crossUser;
-    address payable nullUser;
-    address betToken;
-    uint256 betAmount;
+    address payable public crossUser;
+    address payable public nullUser;
+    address public betToken;
+    uint256 public betAmount;
 
     event Received(address user, address token, uint256 amount, uint256 time);
 
@@ -33,13 +33,15 @@ contract Game {
     }
 
     function join() external payable {
-        require(msg.value == betAmount, "CrossNull: Invalid bet amount");
-        if (crossUser == payable(0)) {
-            crossUser = payable(msg.sender);
-        } else if (nullUser == payable(0)) {
-            nullUser = payable(msg.sender);
+        nullUser = payable(msg.sender);
+        if (betToken == address(0)) {
+            require(msg.value == betAmount, "GameFactory: Invalid bet amount");
         } else {
-            revert("CrossNull: Game is filled");
+            IERC20(betToken).safeTransferFrom(
+                msg.sender,
+                address(this),
+                betAmount
+            );
         }
     }
 
