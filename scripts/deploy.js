@@ -14,7 +14,7 @@ async function main() {
   for (const k in envConfig) { process.env[k] = envConfig[k]; }
   console.log("Deploying...");
   const GameFactory = await hre.ethers.getContractFactory("GameFactory");
-  const game_factory = await upgrades.deployProxy(GameFactory, [], { initializer: 'initialize' });
+  const game_factory = await upgrades.deployProxy(GameFactory, [sender], { initializer: 'initialize' });
   await game_factory.deployed();
   envConfig["GAME_FACTORY"] = game_factory.address;
   console.log("Game factory has been deployed to:", game_factory.address);
