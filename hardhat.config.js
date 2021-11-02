@@ -4,6 +4,7 @@ require('@nomiclabs/hardhat-web3')
 require('solidity-coverage')
 require('hardhat-docgen')
 require('@openzeppelin/hardhat-upgrades')
+require("@nomiclabs/hardhat-etherscan")
 require('dotenv').config();
 require('./tasks');
 
@@ -30,6 +31,13 @@ if (!process.env.PROVIDER_API_KEY) {
   throw new Error('Please set your INFURA_API_KEY in a .env file');
 } else {
   providerApiKey = process.env.PROVIDER_API_KEY;
+}
+
+let explorerApiKey;
+if (!process.env.EXPLORER_API_KEY) {
+  throw new Error('Please set your EXPLORER_API_KEY in a .env file');
+} else {
+  explorerApiKey = process.env.EXPLORER_API_KEY;
 }
 
 function createNetworkConfig(network) {
@@ -74,6 +82,9 @@ module.exports = {
         runs: 200
       }
     }
+  },
+  etherscan: {
+    apiKey: explorerApiKey
   },
   mocha: {
     timeout: 20000
