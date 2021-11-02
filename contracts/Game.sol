@@ -20,17 +20,26 @@ contract Game {
         int256 y;
     }
 
+    /// @dev Address of first user
     address payable public crossUser;
+    /// @dev Address of second user
     address payable public nullUser;
+    /// @dev Address of bet token
     address public betToken;
+    /// @dev Bet amount
     uint256 public betAmount;
+    /// @dev Who makes the next step
     Status public whosNext;
+    /// @dev Who is winner
     Status public winner;
+    /// @dev Game is active?
     bool public isActive;
+    /// @dev Field on torus size 2^255
     mapping(int256 => mapping(int256 => Status)) public field;
-
+    /// @dev Event emitted when user joined to game and placed bet
     event Received(address user, address token, uint256 amount, uint256 time);
-    event Winned(address user, address token, uint256 amount, uint256 time);
+    /// @dev Event emitted when user won
+    event Won(address user, address token, uint256 amount, uint256 time);
 
     /**
      * @dev Create game, join first user and place a bet
@@ -91,7 +100,7 @@ contract Game {
             if (checkWins(x, y, Status.Cross)) {
                 isActive = false;
                 winner = Status.Cross;
-                emit Winned(msg.sender, betToken, betAmount, block.timestamp);
+                emit Won(msg.sender, betToken, betAmount, block.timestamp);
                 payReward(crossUser);
             }
             whosNext = Status.Null;
@@ -104,7 +113,7 @@ contract Game {
             if (checkWins(x, y, Status.Null)) {
                 isActive = false;
                 winner = Status.Null;
-                emit Winned(msg.sender, betToken, betAmount, block.timestamp);
+                emit Won(msg.sender, betToken, betAmount, block.timestamp);
                 payReward(nullUser);
             }
             whosNext = Status.Cross;
