@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -25,11 +25,17 @@ contract Game {
     address public betToken;
     uint256 public betAmount;
     Status public whosNext;
-    bool isActive;
+    Status public winner;
+    bool public isActive;
     mapping(int256 => mapping(int256 => Status)) public field;
 
     event Received(address user, address token, uint256 amount, uint256 time);
+    event Winned(address user, address token, uint256 amount, uint256 time);
 
+    /**
+     * @dev Create game, join first user and place a bet
+     * @param _crossUser
+     */
     constructor(
         address payable _crossUser,
         address _betToken,
@@ -44,8 +50,12 @@ contract Game {
                 "CrossNull: Insuffience bet amount"
             );
         }
+        emit Received(_crossUser, _betToken, _betAmount, block.timestamp);
     }
 
+    /**
+     * @dev Join second user to game and place a bet
+     */
     function join() external payable {
         nullUser = payable(msg.sender);
         if (betToken == address(0)) {
@@ -59,6 +69,7 @@ contract Game {
         }
         whosNext = Status.Cross;
         isActive = true;
+        emit Received(msg.sender, betToken, betAmount, block.timestamp);
     }
 
     function step(int256 x, int256 y) external {
@@ -72,6 +83,8 @@ contract Game {
             field[x][y] = Status.Cross;
             if (checkWins(x, y, Status.Cross)) {
                 isActive = false;
+                winner = Status.Cross;
+                emit Winned(msg.sender, betToken, betAmount, block.timestamp);
                 payReward(crossUser);
             }
             whosNext = Status.Null;
@@ -83,6 +96,8 @@ contract Game {
             field[x][y] = Status.Null;
             if (checkWins(x, y, Status.Null)) {
                 isActive = false;
+                winner = Status.Null;
+                emit Winned(msg.sender, betToken, betAmount, block.timestamp);
                 payReward(nullUser);
             }
             whosNext = Status.Cross;
@@ -131,11 +146,11 @@ contract Game {
         return false;
     }
 
-    function payReward(address payable winner) internal {
+    function payReward(address payable _winner) internal {
         if (betToken == address(0)) {
-            winner.sendValue(2 * betAmount);
+            _winner.sendValue(2 * betAmount);
         } else {
-            IERC20(betToken).transfer(winner, 2 * betAmount);
+            IERC20(betToken).transfer(_winner, 2 * betAmount);
         }
     }
 }

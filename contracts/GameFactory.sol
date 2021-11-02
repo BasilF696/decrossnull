@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
@@ -53,6 +53,12 @@ contract GameFactory is
         onlyRole(UPGRADER_ROLE)
     {}
 
+    /**
+     * @dev Create new Cross-Null game on torus size 2^255. The user who is the first to close 5 cells in a row wins.
+     * @param feeToken Address of token for fee payment. If address is 0, then used native coin.
+     * @param betToken Address of token for bet payment. If address is 0, then used native coin.
+     * @param betAmount Amount of bet
+     */
     function newGame(
         address feeToken,
         address betToken,

@@ -254,4 +254,56 @@ describe("Game Tests", function () {
       ).to.equal(bet2);
     });
   });
+
+  describe('Game: step game', () => {
+    let game;
+    beforeEach(async () => {
+      await fee_token.connect(cross_user).approve(game_factory.address, fee);
+      await bet_token.connect(cross_user).approve(game_factory.address, bet);
+      await game_factory.connect(cross_user).newGame(fee_token.address, bet_token.address, bet);
+      let game_address = await game_factory.userGames(cross_user.address, 0);
+      game = await ethers.getContractAt("Game", game_address);
+      await bet_token.connect(null_user).approve(game.address, bet);
+      await game.connect(null_user).join();
+    });
+    it("Step 1: Cross user is win", async function () {
+      for (let i = 0; i < 4; i++) {
+        await game.connect(cross_user).step(i + 1, i + 1);
+        await game.connect(null_user).step(0, i);
+      }
+      let balance_before = await bet_token.balanceOf(cross_user.address);
+      await game.connect(cross_user).step(5, 5);
+      let balance_after = await bet_token.balanceOf(cross_user.address);
+
+      expect(
+        balance_after / 1e18 - balance_before / 1e18
+      ).to.equal(30);
+      expect(
+        await game.isActive()
+      ).to.equal(false);
+      expect(
+        await game.winner()
+      ).to.equal(1);
+    });
+    it("Step 2: Null user is win", async function () {
+      for (let i = 0; i < 4; i++) {
+        await game.connect(cross_user).step(i + 1, i + 1);
+        await game.connect(null_user).step(0, i);
+      }
+      await game.connect(cross_user).step(4, 5);
+      let balance_before = await bet_token.balanceOf(null_user.address);
+      await game.connect(null_user).step(0, 4);
+      let balance_after = await bet_token.balanceOf(null_user.address);
+
+      expect(
+        balance_after / 1e18 - balance_before / 1e18
+      ).to.equal(30);
+      expect(
+        await game.isActive()
+      ).to.equal(false);
+      expect(
+        await game.winner()
+      ).to.equal(2);
+    });
+  });
 });
