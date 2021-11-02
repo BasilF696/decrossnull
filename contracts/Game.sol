@@ -34,7 +34,9 @@ contract Game {
 
     /**
      * @dev Create game, join first user and place a bet
-     * @param _crossUser
+     * @param _crossUser Address of first user
+     * @param _betToken Address of token for bet payment. If address is 0, then used native coin.
+     * @param _betAmount Amount of bet
      */
     constructor(
         address payable _crossUser,
@@ -72,6 +74,11 @@ contract Game {
         emit Received(msg.sender, betToken, betAmount, block.timestamp);
     }
 
+    /**
+     * @dev Close the cell with your symbol. The user who is the first to close 5 cells in a row wins.
+     * @param x x-axis coordinate
+     * @param y y-axis coordinate
+     */
     function step(int256 x, int256 y) external {
         require(isActive, "CrossNull: Game is not active");
         require(field[x][y] == Status.Void, "CrossNull: The cell is busy");
